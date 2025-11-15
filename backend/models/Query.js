@@ -1,25 +1,23 @@
-import mongoose from 'mongoose';
+
+const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 
-const HistorySchema = new Schema({
-  action: String,
-  by: String,
-  at: { type: Date, default: Date.now },
-  note: String
-});
-
-const QuerySchema = new Schema({
-  senderName: String,
-  senderChannel: { type: String, default: 'website-chat' }, // email|instagram|whatsapp|website-chat
+const QuerySchema = Schema({
   message: { type: String, required: true },
+  channel: { type: String, default: "email" },
   tags: [String],
-  priority: { type: String, enum: ['low','medium','high'], default: 'low' },
-  sentiment: { type: String, enum: ['positive','neutral','negative'], default: 'neutral' },
-  status: { type: String, enum: ['open','in-progress','escalated','resolved'], default: 'open' },
+  priority: { type: String, default: "low" },
+  sentiment: Number,
+  status: { type: String, default: "open" },
   assignedTo: { type: String, default: null },
-  createdAt: { type: Date, default: Date.now },
-  history: [HistorySchema]
-});
+  history: [
+    {
+      action: String,
+      by: String,
+      at: { type: Date, default: Date.now }
+    }
+  ],
+}, { timestamps: true });
 
 module.exports = mongoose.model('Query', QuerySchema);

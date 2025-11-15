@@ -1,0 +1,125 @@
+const Query = require("../models/Query");
+const { sentimentAnalyze } = require("../utils/sentimentsAnalyse");
+const { autoTag } = require("../utils/autoTag");
+const { autoPriority } = require("../utils/autoPriority");
+
+const createQuery = async (req, res) => {
+  try {
+    const { message, channel } = req.body;
+    // console.log("Message:", message, "Channel:", channel);
+    const tags = autoTag(message);
+    // console.log("Generated Tags:", tags);
+    const sentiment = sentimentAnalyze(message);
+    // console.log("Analyzed Sentiment:", sentiment);
+    const priority = autoPriority(tags, sentiment);
+    // console.log("Determined Priority:", priority);
+
+    const query = await Query.create({
+      message,
+      channel,
+      tags,
+      sentiment,
+      priority,
+    });
+
+    res.status(200).json(query);
+  } catch (error) {
+    res.status(500).json({ status: false, error: error.message });
+  }
+};
+
+const getAllQueries = async (req, res) => {
+  try {
+    const data = await Query.find().sort({ createdAt: -1 });
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+};
+
+const getById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const q = await Query.findById(req.params.id);
+    res.status(200).json(q);
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+};
+
+const updateQuery = async (req, res) => {
+  try {
+    const { status, assignedTo } = req.body;
+    const updated = await Query.findByIdAndUpdate(
+      req.params.id,
+      {
+        ...(status && { status }),
+        ...(assignedTo && { assignedTo }),
+        $push: { history: { action: `Updated`, by: "system" } },
+      },
+      { new: true }
+    );
+    res.status(200).json(updated);
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+};
+
+const getAnalytics = async (req, res) => {
+  // add cosole logs to debug after every step
+  try {
+    
+    const total = await Query.countDocuments();
+
+    const critical = await Query.countDocuments({ priority: "critical" });
+    const high = await Query.countDocuments({ priority: "high" });
+    const medium = await Query.countDocuments({ priority: "medium" });
+    const low = await Query.countDocuments({ priority: "low" });
+
+    const open = await Query.countDocuments({ status: "open" });
+    const closed = await Query.countDocuments({ status: "closed" });
+
+    // SLA: tickets open > 24 hours
+    const slaBreach = await Query.countDocuments({
+      status: "open",
+      createdAt: { $lt: new Date(Date.now() - 24 * 60 * 60 * 1000) }
+    });
+
+    // Average sentiment
+    const sentimentAgg = await Query.aggregate([
+      { $group: { _id: null, avgSentiment: { $avg: "$sentiment" } } }
+    ]);
+
+    const avgSentiment = sentimentAgg.length ? sentimentAgg[0].avgSentiment : 0;
+
+    // Most common tags
+    const topTags = await Query.aggregate([
+      { $unwind: "$tags" },
+      { $group: { _id: "$tags", count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 5 }
+    ]);
+
+    res.status(200).json({
+      total,
+      priorities: { critical, high, medium, low },
+      status: { open, closed },
+      slaBreach,
+      avgSentiment,
+      topTags
+    });
+
+  } catch (error) {
+    console.log(error);
+
+    res.status(500).json({ status: false, error: error.message });
+  }
+};
+
+module.exports = {
+  createQuery,
+  getAllQueries,
+  getById,
+  updateQuery,
+  getAnalytics,
+};
