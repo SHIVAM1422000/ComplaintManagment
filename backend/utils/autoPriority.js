@@ -1,8 +1,3 @@
-// export default function autoPriority(tags, sentiment) {
-//   if (sentiment < -3) return "high";
-//   if (tags.includes("refund")) return "medium";
-//   return "low";
-// }
 
 function autoPriority(tags, sentiment, message = "") {
   message = message.toLowerCase();
