@@ -16,6 +16,10 @@
 <img width="501" height="426" alt="Screenshot 2025-11-16 at 3 08 18 PM" src="https://github.com/user-attachments/assets/bbd141a0-0208-4311-97f5-cbe0c6d84f33" />
 
 
+<h3>ALSO GET THE UPDATE HISTORY</h3>
+<img width="353" height="268" alt="Screenshot 2025-11-16 at 7 54 18 PM" src="https://github.com/user-attachments/assets/b968d3d3-a63a-4062-a767-70c3619e73a2" />
+
+
 📈 Future Enhancements
 
 Multi-agent team routing
