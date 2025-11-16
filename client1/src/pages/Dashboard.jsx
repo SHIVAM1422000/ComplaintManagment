@@ -5,6 +5,7 @@ import QueryDetails from "../components/QueryDetails";
 import AnalyticsPanel from "../components/AnalyticsPanel";
 import AssignModal from "../components/AssignModal";
 import API from "../api/api";
+import socket from "../socket/socket";
 
 export default function Dashboard() {
   const [list, setList] = useState([]);
@@ -23,8 +24,22 @@ export default function Dashboard() {
     }
   };
 
+ 
   useEffect(() => {
     loadAll();
+
+    socket.on("query-updated", () => {
+      loadAll(); // reload list + analytics
+    });
+
+    socket.on("analytics-updated", () => {
+      loadAll(); // reload analytics only
+    });
+
+    return () => {
+      socket.off("query-updated");
+      socket.off("analytics-updated");
+    };
   }, []);
 
   return (

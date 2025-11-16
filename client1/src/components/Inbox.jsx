@@ -34,7 +34,7 @@ function Inbox() {
       t =>
         t.message.toLowerCase().includes(search.toLowerCase()) ||
         t._id.toLowerCase().includes(search.toLowerCase()) ||
-        t.channel.toLowerCase().includes(search.toLowerCase())
+        t.channel.toLowerCase().includes(search.toLowerCase()) ||  t.status.toLowerCase().includes(search.toLowerCase()) 
     );
     // console.log("Filtered Tickets:", filtered);
     setVisibleTickets(filtered);

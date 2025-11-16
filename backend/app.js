@@ -9,22 +9,45 @@ const app = express();
 const PORT = process.env.PORT || 8000;
 app.use(cors());
 
+const { Server } = require("socket.io");
+const http = require("http");
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+  },
+});
+
+app.set("io", io);
+
 // Middleware
 app.use(bodyParser.json());
 
 // Routes
 app.get("/", (req, res) => {
-    res.send("Hello World!");
+  res.send("Hello World!");
 });
 app.use("/api/v1/query", queryRoutes);
 
 // Start server
 connectDB()
   .then(() => {
-    app.listen(PORT, () => {
-      console.log(`Server is running on http://localhost:${PORT}`);
+    console.log("Connected to the database successfully.");
+
+    io.on("connection", (socket) => {
+      console.log("Client io connected:", socket.id);
     });
+    server.listen(PORT, () =>
+      console.log(
+        `Server running with socket.io running on http://localhost:${PORT}`
+      )
+    );
+    // app.listen(PORT, () => {
+    //   console.log(`Server is running on http://localhost:${PORT}`);
+    // });
   })
   .catch((error) => {
     console.error("Failed to connect to the database:", error.message);
   });
+
+

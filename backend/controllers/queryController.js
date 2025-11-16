@@ -3,6 +3,8 @@ const { sentimentAnalyze } = require("../utils/sentimentsAnalyse");
 const { autoTag } = require("../utils/autoTag");
 const { autoPriority } = require("../utils/autoPriority");
 
+
+
 const createQuery = async (req, res) => {
   try {
     const { message, channel } = req.body;
@@ -21,6 +23,12 @@ const createQuery = async (req, res) => {
       sentiment,
       priority,
     });
+
+    // Emit real-time event
+      const io = req.app.get("io");
+    io.emit("query-updated", { type: "created", data: query });
+    io.emit("analytics-updated");
+
 
     res.status(200).json(query);
   } catch (error) {
@@ -59,6 +67,11 @@ const updateQuery = async (req, res) => {
       },
       { new: true }
     );
+       //  Emit live update
+    const io = req.app.get("io");
+    io.emit("query-updated", { type: "updated", data: updated });
+    io.emit("analytics-updated");
+
     res.status(200).json(updated);
   } catch (error) {
     res.status(500).json({ error });

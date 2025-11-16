@@ -2,8 +2,14 @@ import axios from "axios";
 import PriorityTag from "./PriorityTag";
 import OriginTag from "./OriginTag";
 import API from "../api/api";
+import { useState } from "react";
 
 export default function TicketCard({ ticket }) {
+  const [ticketData, setTicketData] = useState({
+    status: ticket.status,
+    assignedTo: ticket.assignedTo,
+  });
+
   const updateTicket = async (field, value) => {
     //  "status": "againOPened",
     //  "assignedTo": "ROHAN",
@@ -20,6 +26,11 @@ export default function TicketCard({ ticket }) {
 
     try {
       await API.patch(`/${ticket._id}`, updateData, config);
+      setTicketData((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+      //  window.location.reload();
     } catch (error) {
       console.log(error.message);
     }
@@ -32,12 +43,12 @@ export default function TicketCard({ ticket }) {
         <PriorityTag level={ticket.priority} />
       </div>
 
-      <p className="text-gray-600 mt-2">{ticket.message}</p>
+      <p className="text-black-800 mt-2">{ticket.message}</p>
       <p
         className="text-sm text-gray-400 mt-3"
         style={{ fontWeight: "bold", color: "red" }}
       >
-        STATUS: {ticket.status}
+        STATUS: {ticketData.status}
       </p>
       <div className="flex items-center gap-2">
         <div className="w-8 h-8  p-3 rounded-full bg-blue-100 flex items-center justify-center text-lg font-bold">
@@ -50,7 +61,7 @@ export default function TicketCard({ ticket }) {
       {/* // change status dropdown */}
       <select
         className="border px-2 py-1 rounded"
-        value={ticket.status}
+        value={ticketData.status}
         onChange={(e) => updateTicket("status", e.target.value)}
       >
         <option value="open">Open</option>
@@ -60,7 +71,7 @@ export default function TicketCard({ ticket }) {
 
       <select
         className="border px-2 py-1 rounded"
-        value={ticket.assignedTo}
+        value={ticketData.assignedTo}
         onChange={(e) => updateTicket("assignedTo", e.target.value)}
       >
         <option value="">Unassigned</option>
