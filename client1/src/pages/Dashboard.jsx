@@ -12,28 +12,23 @@ export default function Dashboard() {
   const [analytics, setAnalytics] = useState(null);
   const [showAssign, setShowAssign] = useState(false);
 
-  const loadAll = async() => {
+  const loadAll = async () => {
     try {
-        const res = await API.get("/");
-        setList(res.data);
-        const a = await API.get("/analytics");
-        setAnalytics(a.data);
-        
+      const res = await API.get("/");
+      setList(res.data);
+      const a = await API.get("/analytics");
+      setAnalytics(a.data);
     } catch (error) {
-        console.error("Error loading data:", error);
+      console.error("Error loading data:", error);
     }
-  }
+  };
 
   useEffect(() => {
     loadAll();
   }, []);
 
   return (
-    <div className="grid grid-cols-3 gap-4 p-6" style={{ marginTop: "10%", marginLeft: "35%", marginRight: "5%", height: "60vh", width:"90vw"
-    }}>
-    
-
-      {/* Analytics */}
+    <div className="p-6 w-full">
       <AnalyticsPanel data={analytics} />
 
       <AssignModal
