@@ -116,10 +116,42 @@ const getAnalytics = async (req, res) => {
   }
 };
 
+
+const suggestReply = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const q = await Query.findById(id);
+    if (!q) return res.status(404).json({ error: "Not found" });
+
+    // Simple template-based suggestion using tags and sentiment
+    const tags = q.tags || [];
+    const sentiment = q.sentiment || 0;
+    let base = "Hi, thanks for reaching out. ";
+
+    if (tags.includes("payment") || tags.includes("payment-failed") || tags.includes("refund")) {
+      base += "We're sorry about the payment issue. Please share your order id and a screenshot of the transaction so we can investigate and help with a refund or retry.";
+    } else if (tags.includes("delivery") || tags.includes("tracking") || tags.includes("lost-package")) {
+      base += "We apologise for the delivery trouble. Could you confirm your order ID and preferred contact number? We'll locate your shipment and update you immediately.";
+    } else if (tags.includes("login") || tags.includes("account-locked") || tags.includes("password-reset")) {
+      base += "Please try resetting your password with the 'Forgot password' link; if still blocked, share the registered email and we'll escalate to the account team.";
+    } else if (sentiment <= -6) {
+      base += "We understand your frustration and will escalate this as a priority. Please share the details and we will get back in under 1 business hour.";
+    } else {
+      base += "Thanks for your message — can you provide a bit more detail so we can help?";
+    }
+
+    return res.status(200).json({ text: base });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: err.message });
+  }
+};
+
 module.exports = {
   createQuery,
   getAllQueries,
   getById,
   updateQuery,
   getAnalytics,
+  suggestReply
 };

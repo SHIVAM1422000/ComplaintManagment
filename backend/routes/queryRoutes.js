@@ -11,6 +11,7 @@ const {
   getById,
   updateQuery,
   getAnalytics,
+  suggestReply,
 }= require('../controllers/queryController');
 
 
@@ -20,6 +21,7 @@ router.route("/").post(createQuery).get(getAllQueries);
 // Get, Update query by ID
 router.route("/analytics").get(getAnalytics);
 router.route("/:id").get(getById).patch(updateQuery);
+router.route("/:id/suggest-reply").get(suggestReply);
 
 // Get analytics
 
