@@ -2,8 +2,12 @@
 <h1> 🚨 ComplaintManagment : QueryManagement 360  with SMART SORTING ALGORITHM</h1>
 <img width="1437" height="815" alt="Screenshot 2025-11-16 at 3 04 03 PM" src="https://github.com/user-attachments/assets/70acc6b9-c5e3-4b18-ac57-f8f085d6be8e" />
 <h3>Sort According to ORIGIN, , PRIORITY, DATE, TIME</h3>
-  <img width="198" height="264" a<img width="1248" height="718" alt="Screenshot 2025-11-16 at 3 02 19 PM" src="https://github.com/user-attachments/assets/de860968-49b5-4619-b394-75ec8c35b4e0" />
-lt="Screenshot 2025-11-16 at 3 02 04 PM" src="https://github.com/user-attachments/assets/527a1dd5-aad2-40d1-9bdf-96b0250bd574" />
+
+<img width="262" height="243" alt="Screenshot 2025-11-16 at 3 09 31 PM" src="https://github.com/user-attachments/assets/63926bd9-a35a-41c9-add6-acf6607904a0" />
+
+
+<img width="1232" height="646" alt="Screenshot 2025-11-16 at 3 09 39 PM" src="https://github.com/user-attachments/assets/3885e5fa-4c47-42d3-9ba6-3efa0e2c7bf3" />
+
 
 <h3>Advanced Search </h3>
 <img width="413" height="92" alt="Screenshot 2025-11-16 at 3 08 02 PM" src="https://github.com/user-attachments/assets/a0a5f3be-e1dc-48cf-b597-f9a4e0972cbf" />
