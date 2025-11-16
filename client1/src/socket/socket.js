@@ -1,8 +1,6 @@
 import { io } from "socket.io-client";
-const url =
-  process.env.NODE_ENV === "production"
-    ? "https://query-management-360-backend.onrender.com/api/v1/query"
-    : "http://localhost:8000/api/v1/query";
+import URL from "../utility/helper";
 
-const socket = io(url);
+
+const socket = io(URL);
 export default socket;
