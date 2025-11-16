@@ -1,9 +1,9 @@
 import axios from "axios";
 import PriorityTag from "./PriorityTag";
 import OriginTag from "./OriginTag";
+import API from "../api/api";
 
 export default function TicketCard({ ticket }) {
-  
   const updateTicket = async (field, value) => {
     //  "status": "againOPened",
     //  "assignedTo": "ROHAN",
@@ -19,16 +19,11 @@ export default function TicketCard({ ticket }) {
     console.log("Upating Ticket:", ticket._id, updateData);
 
     try {
-      await axios.patch(
-        `https://complaintmanagment.onrender.com/api/v1/query/${ticket._id}`,
-        updateData,
-        config
-      );
+      await API.patch(`/${ticket._id}`, updateData, config);
     } catch (error) {
       console.log(error.message);
     }
   };
-
 
   return (
     <div className="p-5 bg-white rounded-2xl shadow-xl hover:shadow-2xl border transition-all duration-300">
@@ -90,7 +85,6 @@ export default function TicketCard({ ticket }) {
           </ul>
         </details>
       )}
-
     </div>
   );
 }

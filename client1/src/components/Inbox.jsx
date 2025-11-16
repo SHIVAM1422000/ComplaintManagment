@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import TicketCard from "../components/TicketCard";
 import SearchBar from "../components/SearchBar";
 import SortDropdown from "../components/SortDropdown";
+import API from "../api/api";
 
 function Inbox() {
   const [tickets, setTickets] = useState([]);
@@ -13,22 +14,29 @@ function Inbox() {
 
 
   useEffect(() => {
-    axios.get(`https://complaintmanagment.onrender.com/api/v1/query`)
-      .then(res => {
+    API.get("/")
+      .then((res) => {
         setTickets(res.data);
-        setVisibleTickets(res.data); // Initialize
+        setVisibleTickets(res.data);
+        console.log("Fetched Tickets:", res.data);
+        
       })
       .catch(console.error);
+
+
   }, []);
 
   useEffect(() => {
-    // Filter after search update
+
+    if(tickets.length === 0) return;
+
     const filtered = tickets.filter(
       t =>
         t.message.toLowerCase().includes(search.toLowerCase()) ||
-        t.id.toLowerCase().includes(search.toLowerCase()) ||
+        t._id.toLowerCase().includes(search.toLowerCase()) ||
         t.channel.toLowerCase().includes(search.toLowerCase())
     );
+    // console.log("Filtered Tickets:", filtered);
     setVisibleTickets(filtered);
   }, [search, tickets]);
 
@@ -54,6 +62,7 @@ function Inbox() {
   if(!tickets.length) {
     return <div className="p-6">Loading tickets...</div>;
   }
+
   return (
     <div className="p-6 space-y-6">
       <h2 className="text-3xl font-bold">Inbox</h2>
