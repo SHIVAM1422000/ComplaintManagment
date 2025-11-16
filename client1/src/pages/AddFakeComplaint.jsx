@@ -1,0 +1,38 @@
+import { useState } from "react";
+import API from "../api/api";
+
+
+export default function AddFakeComplaint() {
+  const [msg, setMsg] = useState("");
+  const loc = ["instagram", "facebook", "twitter", "email", "web"];
+
+  async function submit() {
+    const randomIndex = Math.floor(Math.random() * loc.length);
+    await API.post("/", {
+      message: msg,
+      channel: loc[randomIndex],
+    });
+
+    console.log("Fake complaint added 🎉")
+    setMsg("");
+  }
+
+  return (
+    <div className="p-6 max-w-xl mx-auto">
+      <h1 className="text-2xl font-bold mb-4">Add Fake Complaint 📝</h1>
+      <textarea
+        rows={4}
+        className="w-full border p-3 rounded"
+        placeholder="Enter fake complaint text..."
+        value={msg}
+        onChange={(e) => setMsg(e.target.value)}
+      />
+      <button
+        className="mt-3 px-4 py-2 bg-indigo-600 text-white rounded"
+        onClick={submit}
+      >
+        Submit 🎯
+      </button>
+    </div>
+  );
+}
