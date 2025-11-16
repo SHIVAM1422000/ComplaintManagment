@@ -3,6 +3,7 @@ import PriorityTag from "./PriorityTag";
 import OriginTag from "./OriginTag";
 
 export default function TicketCard({ ticket }) {
+  
   const updateTicket = async (field, value) => {
     //  "status": "againOPened",
     //  "assignedTo": "ROHAN",
@@ -19,7 +20,7 @@ export default function TicketCard({ ticket }) {
 
     try {
       await axios.patch(
-        `http://localhost:8000/api/v1/query/${ticket._id}`,
+        `https://complaintmanagment.onrender.com/api/v1/query/${ticket._id}`,
         updateData,
         config
       );
@@ -27,6 +28,8 @@ export default function TicketCard({ ticket }) {
       console.log(error.message);
     }
   };
+
+
   return (
     <div className="p-5 bg-white rounded-2xl shadow-xl hover:shadow-2xl border transition-all duration-300">
       <div className="flex justify-between">

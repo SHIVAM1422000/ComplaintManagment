@@ -7,6 +7,8 @@ import Inbox from './components/Inbox';
 import AddFake from './pages/AddFake';
 
 const App = () => {
+
+  
   return (
     <BrowserRouter>
       <div className="flex bg-gradient-to-br from-purple-50 to-blue-50 min-h-screen">
