@@ -16,6 +16,16 @@
 <img width="501" height="426" alt="Screenshot 2025-11-16 at 3 08 18 PM" src="https://github.com/user-attachments/assets/bbd141a0-0208-4311-97f5-cbe0c6d84f33" />
 
 
+📈 Future Enhancements
+
+Multi-agent team routing
+
+WhatsApp & Instagram live integrations
+
+Sentiment-powered SLA timers
+
+AI summarization of long chats
+
 
 A simple complaint / ticket management project with a Node/Express backend and a Vite + React frontend. 💡
 
