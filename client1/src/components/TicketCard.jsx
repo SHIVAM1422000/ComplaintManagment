@@ -28,7 +28,7 @@ export default function TicketCard({ ticket }) {
     }
   };
   return (
-    <div className="p-4 bg-white rounded-2xl shadow-md hover:shadow-xl transition-all border">
+    <div className="p-5 bg-white rounded-2xl shadow-xl hover:shadow-2xl border transition-all duration-300">
       <div className="flex justify-between">
         <h3 className="text-xl font-semibold"> Ticked ID: 📝 {ticket._id}</h3>
         <PriorityTag level={ticket.priority} />
@@ -87,6 +87,7 @@ export default function TicketCard({ ticket }) {
           </ul>
         </details>
       )}
+
     </div>
   );
 }
