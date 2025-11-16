@@ -15,6 +15,7 @@ const App = () => {
           <Navbar />
           <Routes>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/" element={<Inbox />} />
             <Route path="/inbox" element={<Inbox />} />
             <Route path="/add-fake" element={<AddFake />} />
           </Routes>

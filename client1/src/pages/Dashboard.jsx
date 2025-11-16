@@ -29,7 +29,8 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="grid grid-cols-3 gap-4 p-6">
+    <div className="grid grid-cols-3 gap-4 p-6" style={{ marginTop: "10%", marginLeft: "35%", marginRight: "5%", height: "60vh", width:"90vw"
+    }}>
     
 
       {/* Analytics */}

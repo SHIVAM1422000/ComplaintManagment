@@ -1,13 +1,13 @@
 export default function PriorityTag({ level }) {
-  const colors = {
-    high: "bg-red-500",
-    medium: "bg-yellow-500",
-    low: "bg-green-500"
-  };
-
+  const color = {
+    critical: "bg-red-600 text-white",
+    high: "bg-yellow-500 text-black",
+    medium: "bg-blue-400 text-white",
+    low: "bg-green-600 text-white",
+  }[level] || "bg-gray-300 text-black";
   return (
-    <span className={`px-3 py-1 rounded-full text-white text-sm ${colors[level]}`}>
-      {level.toUpperCase()}
+    <span className={`px-3 py-1 rounded-xl font-bold shadow-sm ${color}`}>
+      {level?.toUpperCase() || "N/A"}
     </span>
   );
 }
