@@ -1,7 +1,10 @@
 import React from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
-import AddFakeComplaint from './pages/AddFakeComplaint';
+import Sidebar from './components/Sidebar';
+import Navbar from './components/Navbar';
+import Inbox from './components/Inbox';
+import AddFake from './pages/AddFake';
 
 const App = () => {
   return (

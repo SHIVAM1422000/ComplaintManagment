@@ -30,24 +30,7 @@ export default function Dashboard() {
 
   return (
     <div className="grid grid-cols-3 gap-4 p-6">
-      {/* Inbox */}
-      <div className="col-span-1 bg-gradient-to-b from-blue-50 to-purple-50 p-4 rounded-xl shadow">
-        <h2 className="font-bold text-xl mb-4">📬 Inbox</h2>
-        <InboxList
-          list={list}
-          onOpen={setSelected}
-          onAssign={() => setShowAssign(true)}
-          onEscalate={() => {}}
-        />
-      </div>
-
-      {/* Details */}
-      <QueryDetails
-        q={selected}
-        onReply={(id, text) => console.log("reply", id, text)}
-        onEscalate={() => {}}
-        onCloseTicket={() => {}}
-      />
+    
 
       {/* Analytics */}
       <AnalyticsPanel data={analytics} />

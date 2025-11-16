@@ -2,7 +2,7 @@ import { useState } from "react";
 import API from "../api/api";
 
 
-export default function AddFakeComplaint() {
+export default function AddFake() {
   const [msg, setMsg] = useState("");
   const loc = ["instagram", "facebook", "twitter", "email", "web"];
 
