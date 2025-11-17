@@ -38,7 +38,7 @@ This repository contains two main parts:
 - `backend/` — Node.js + Express API (likely using MongoDB)
 - `client1/` — React app built with Vite
 
-## ✨ Key features
+<h1> ## ✨ Key features </h1>
 - ✅ Create, update, and track complaints/tickets
 - 🏷️ Automatic tagging and priority helpers in `backend/utils`
 - ✅Smart AI based reply
