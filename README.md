@@ -13,7 +13,8 @@
 <img width="413" height="92" alt="Screenshot 2025-11-16 at 3 08 02 PM" src="https://github.com/user-attachments/assets/a0a5f3be-e1dc-48cf-b597-f9a4e0972cbf" />
 
 <h4>GENERATE ANALYTICS</h4>
-<img width="501" height="426" alt="Screenshot 2025-11-16 at 3 08 18 PM" src="https://github.com/user-attachments/assets/bbd141a0-0208-4311-97f5-cbe0c6d84f33" />
+<img width="1193" height="765" alt="Screenshot 2025-11-17 at 12 10 47 PM" src="https://github.com/user-attachments/assets/796b728b-c107-4ed8-8fec-d1772d403441" />
+
 
 
 <h3>ALSO GET THE UPDATE HISTORY</h3>
