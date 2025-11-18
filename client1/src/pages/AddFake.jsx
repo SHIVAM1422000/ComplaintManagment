@@ -1,19 +1,28 @@
 import { useState } from "react";
 import API from "../api/api";
-
+import VoiceInput from "../components/VoiceInput";
+import "../style/style1.css";
+import Ml5Tagger from "../components/Ml5Tagger";
 
 export default function AddFake() {
   const [msg, setMsg] = useState("");
-  const loc = ["instagram", "facebook", "twitter", "email", "web"];
+  const [suggestedTags, setSuggestedTags] = useState([]);
+  const loc = ["instagram", "facebook", "twitter", "email", "web", "whatsapp"];
 
   async function submit() {
+    if(!msg) {
+      alert("Please enter a message");
+      return;
+    }
+
+
     const randomIndex = Math.floor(Math.random() * loc.length);
-    await API.post("/", {
+    const res = await API.post("/", {
       message: msg,
       channel: loc[randomIndex],
     });
 
-    console.log("Fake complaint added 🎉")
+    console.log("Fake complaint added 🎉", res)
     setMsg("");
   }
 
@@ -27,12 +36,18 @@ export default function AddFake() {
         value={msg}
         onChange={(e) => setMsg(e.target.value)}
       />
+      <div className="flex items-center space-x-4">
+
       <button
         className="mt-3 px-4 py-2 bg-indigo-600 text-white rounded"
         onClick={submit}
-      >
+        >
         Submit 🎯
       </button>
+
+      <VoiceInput onResult={setMsg} />
+       <Ml5Tagger sampleMessage={msg} onTagsSuggested={setSuggestedTags} />
+        </div>
     </div>
   );
 }

@@ -36,14 +36,19 @@ export default function TicketCard({ ticket }) {
     }
   };
 
+  const capitalize = (s) => { 
+    const sol = s.charAt(0).toUpperCase() + s.slice(1);
+    return sol
+  }
+
   return (
     <div className="p-5 bg-white rounded-2xl shadow-xl hover:shadow-2xl border transition-all duration-300">
-      <div className="flex justify-between">
-        <h3 className="text-xl font-semibold"> Ticked ID: 📝 {ticket._id}</h3>
+      <div className="flex justify-between items-center align-middle">
+        <h3 className="text-xl font-semibold">   {capitalize(ticket.message)}</h3>
         <PriorityTag level={ticket.priority} />
       </div>
 
-      <p className="text-black-800 mt-2">{ticket.message}</p>
+      <p className="text-black-800 mt-2">TICKED ID:{ticket._id}</p>
       <p
         className="text-sm text-gray-400 mt-3"
         style={{ fontWeight: "bold", color: "red" }}
