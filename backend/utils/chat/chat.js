@@ -1,26 +1,20 @@
 const io = req.app.get("io");
 
 
-io.on('connection', (socket) => {
-  console.log('client connected', socket.id);
-  // join room for a ticket chat: client will emit 'join:chat' with queryId
-  socket.on('join:chat', (queryId) => {
-    socket.join(`chat_${queryId}`);
+io.on("connection", (socket) => {
+  console.log("client connected:", socket.id);
+
+  socket.on("join:chat", (queryId) => {
+    socket.join(queryId);
+    console.log("joined room:", queryId);
   });
 
-  socket.on('leave:chat', (queryId) => {
-    socket.leave(`chat_${queryId}`);
+  socket.on("leave:chat", (queryId) => {
+    socket.leave(queryId);
   });
 
-  // when a client emits chat:send, persist & broadcast
-  socket.on('chat:send', async (payload) => {
-    // payload: { queryId, sender, text }
-    try {
-      const ChatMessage = require('../../models/ChatMessage');
-      const cm = await ChatMessage.create({ queryId: payload.queryId, sender: payload.sender, text: payload.text });
-      io.to(`chat_${payload.queryId}`).emit('chat:new', cm);
-    } catch (e) { console.error('chat send error', e); }
+  socket.on("chat:send", ({ queryId, sender, text }) => {
+    // Broadcast to same room
+    io.to(queryId).emit("chat:new", { sender, text, createdAt: new Date() });
   });
-
-  socket.on('disconnect', () => {});
 });

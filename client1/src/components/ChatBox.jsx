@@ -1,7 +1,8 @@
+
 import React, { useEffect, useState, useRef } from "react";
-import { socket } from "../utils/socket";
 import axios from "axios";
 import URL from "../utility/helper";
+import socket from "../socket/socket";
 
 export default function ChatBox({ queryId, currentUser }) {
   const [messages, setMessages] = useState([]);
@@ -10,15 +11,22 @@ export default function ChatBox({ queryId, currentUser }) {
 
   useEffect(() => {
     if (!queryId) return;
-    // fetch history
-    axios.get(`${URL/queryId}/chat`).then((r) => setMessages(r.data));
-    // join room
+
+    //  etch history
+    axios.get(`${URL}/${queryId}/chat`).then((res) => {
+      setMessages(res.data);
+    });
+
+    // Join room
     socket.emit("join:chat", queryId);
 
+    // Listen for incoming messages
     const handler = (msg) => {
       setMessages((prev) => [...prev, msg]);
     };
+    
     socket.on("chat:new", handler);
+
 
     return () => {
       socket.off("chat:new", handler);
@@ -32,27 +40,36 @@ export default function ChatBox({ queryId, currentUser }) {
 
   const send = async () => {
     if (!text.trim()) return;
-    // emit via socket (it will persist on server side)
-    socket.emit("chat:send", { queryId, sender: currentUser || "Agent", text });
+
+    socket.emit("chat:send", {
+      queryId,
+      sender: currentUser,
+      text,
+    });
+
+    // Optional: Also persist on backend
+    await axios.post(`${URL}/${queryId}/chat`, {
+      sender: currentUser,
+      text,
+    });
+
     setText("");
   };
 
   return (
     <div className="flex flex-col h-full">
-      <div className="overflow-y-auto p-3 flex-1 space-y-2">
-        {messages.map((m) => (
+      <div className="overflow-y-auto flex-1 p-3 space-y-2">
+        {messages.map((m, i) => (
           <div
-            key={m._id}
+            key={i}
             className={`p-2 rounded-lg ${
-              m.sender === currentUser
-                ? "bg-blue-50 self-end"
-                : "bg-gray-100 self-start"
+              m.sender === currentUser ? "bg-blue-100 self-end" : "bg-gray-100"
             }`}
           >
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-gray-500 mb-1">
               {m.sender} • {new Date(m.createdAt).toLocaleString()}
             </div>
-            <div className="text-sm">{m.text}</div>
+            {m.text}
           </div>
         ))}
         <div ref={ref} />
@@ -64,7 +81,7 @@ export default function ChatBox({ queryId, currentUser }) {
           onChange={(e) => setText(e.target.value)}
           className="flex-1 p-2 border rounded"
         />
-        <button onClick={send} className="px-4 rounded bg-blue-600 text-white">
+        <button onClick={send} className="bg-blue-600 text-white px-4 rounded">
           Send
         </button>
       </div>

@@ -3,12 +3,18 @@ import PriorityTag from "./PriorityTag";
 import OriginTag from "./OriginTag";
 import API from "../api/api";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function TicketCard({ ticket }) {
   const [ticketData, setTicketData] = useState({
     status: ticket.status,
     assignedTo: ticket.assignedTo,
   });
+  const navigate = useNavigate();
+  const handleClick = () => {
+    navigate(`/query/${ticket._id}`);
+  };
 
   const updateTicket = async (field, value) => {
     //  "status": "againOPened",
@@ -36,18 +42,19 @@ export default function TicketCard({ ticket }) {
     }
   };
 
-  const capitalize = (s) => { 
+  const capitalize = (s) => {
     const sol = s.charAt(0).toUpperCase() + s.slice(1);
-    return sol
-  }
+    return sol;
+  };
+
+  const { isAgent, isAdmin } = useAuth();
 
   return (
     <div className="p-5 bg-white rounded-2xl shadow-xl hover:shadow-2xl border transition-all duration-300">
       <div className="flex justify-between items-center align-middle">
-        <h3 className="text-xl font-semibold">   {capitalize(ticket.message)}</h3>
+        <h3 className="text-xl font-semibold"> {capitalize(ticket.message)}</h3>
         <PriorityTag level={ticket.priority} />
       </div>
-
       <p className="text-black-800 mt-2">TICKED ID:{ticket._id}</p>
       <p
         className="text-sm text-gray-400 mt-3"
@@ -63,7 +70,7 @@ export default function TicketCard({ ticket }) {
             .join("") || "?"}
         </div>
       </div>
-      {/* // change status dropdown */}
+      {/* // change status dropdown */}( (isAgent || isAdmin) &&{" "}
       <select
         className="border px-2 py-1 rounded"
         value={ticketData.status}
@@ -73,7 +80,7 @@ export default function TicketCard({ ticket }) {
         <option value="in-progress">In Progress</option>
         <option value="closed">Closed</option>
       </select>
-
+      ) ( (isAgent || isAdmin) &&{" "}
       <select
         className="border px-2 py-1 rounded"
         value={ticketData.assignedTo}
@@ -84,8 +91,15 @@ export default function TicketCard({ ticket }) {
         <option value="Tech Team">Tech Team</option>
         <option value="Sales Team">Sales Team</option>
       </select>
+      )
+      <button
+        onClick={handleClick}
+        type="button"
+        class="cursor-pointer text-dark bg-success box-border border border border-dark hover:bg-success-strong focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none"
+      >
+        View Details
+      </button>
       <OriginTag origin={ticket.channel} />
-
       {/* Change History */}
       {ticket.history && (
         <details className="mt-2">

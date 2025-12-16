@@ -6,12 +6,16 @@ import AnalyticsPanel from "../components/AnalyticsPanel";
 import AssignModal from "../components/AssignModal";
 import API from "../api/api";
 import socket from "../socket/socket";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function Dashboard() {
+  
   const [list, setList] = useState([]);
   const [selected, setSelected] = useState(null);
   const [analytics, setAnalytics] = useState(null);
   const [showAssign, setShowAssign] = useState(false);
+  const { isAgent, isAdmin } = useAuth();
 
   const loadAll = async () => {
     try {
@@ -24,7 +28,6 @@ export default function Dashboard() {
     }
   };
 
- 
   useEffect(() => {
     loadAll();
 
@@ -35,6 +38,11 @@ export default function Dashboard() {
     socket.on("analytics-updated", () => {
       loadAll(); // reload analytics only
     });
+
+    if (!isAdmin && !isAgent) {
+      console.log("Access Denied");
+      return <Navigate to="/login" replace />;
+    }
 
     return () => {
       socket.off("query-updated");

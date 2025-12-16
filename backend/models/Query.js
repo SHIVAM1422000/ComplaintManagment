@@ -25,6 +25,18 @@ const QuerySchema = Schema(
     summary: { type: String, default: "" },
     userId: { type: String, default: null },
     embedding: { type: [Number], default: [] },
+    chat: [
+      {
+        sender: String, // name / agent email
+        message: String,
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
+    company: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Company",
+      required: true,
+    },
   },
 
   { timestamps: true }

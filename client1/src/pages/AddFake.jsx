@@ -2,11 +2,10 @@ import { useState } from "react";
 import API from "../api/api";
 import VoiceInput from "../components/VoiceInput";
 import "../style/style1.css";
-import Ml5Tagger from "../components/Ml5Tagger";
+
 
 export default function AddFake() {
   const [msg, setMsg] = useState("");
-  const [suggestedTags, setSuggestedTags] = useState([]);
   const loc = ["instagram", "facebook", "twitter", "email", "web", "whatsapp"];
 
   async function submit() {
@@ -22,7 +21,7 @@ export default function AddFake() {
       channel: loc[randomIndex],
     });
 
-    console.log("Fake complaint added 🎉", res)
+    // console.log("Fake complaint added 🎉", res)
     setMsg("");
   }
 
@@ -46,7 +45,7 @@ export default function AddFake() {
       </button>
 
       <VoiceInput onResult={setMsg} />
-       <Ml5Tagger sampleMessage={msg} onTagsSuggested={setSuggestedTags} />
+
         </div>
     </div>
   );

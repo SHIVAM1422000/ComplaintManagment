@@ -4,6 +4,7 @@ const { autoTag } = require("../utils/autoTag");
 const { autoPriority } = require("../utils/autoPriority");
 const { findDuplicate } = require("../utils/duplicateDetection");
 const { extractiveSummary } = require("../utils/summarizer");
+const { get } = require("mongoose");
 
 const createQuery = async (req, res) => {
   try {
@@ -29,6 +30,7 @@ const createQuery = async (req, res) => {
       priority,
       summary,
       duplicateOf: dup ? dup._id : null,
+      company: req.company._id || null,
     });
 
     // Emit real-time event
@@ -44,7 +46,9 @@ const createQuery = async (req, res) => {
 
 const getAllQueries = async (req, res) => {
   try {
-    const data = await Query.find().sort({ createdAt: -1 });
+    const data = await Query.find({ company: req.company._id }).sort({
+      createdAt: -1,
+    });
     res.status(200).json(data);
   } catch (error) {
     res.status(500).json({ error });
@@ -54,7 +58,10 @@ const getAllQueries = async (req, res) => {
 const getById = async (req, res) => {
   try {
     const { id } = req.params;
-    const q = await Query.findById(req.params.id);
+    const q = await Query.findOne({
+      _id: req.params.id,
+      company: req.company._id,
+    });
     res.status(200).json(q);
   } catch (error) {
     res.status(500).json({ error });
@@ -64,13 +71,14 @@ const getById = async (req, res) => {
 const updateQuery = async (req, res) => {
   try {
     const { status, assignedTo } = req.body;
-    const updated = await Query.findByIdAndUpdate(
-      req.params.id,
-      {
-        ...(status && { status }),
-        ...(assignedTo && { assignedTo }),
-        $push: { history: { action: `Updated`, by: "system" } },
-      },
+    const updateObject = {
+      ...(status && { status }),
+      ...(assignedTo && { assignedTo }),
+      $push: { history: { action: `Updated`, by: "system" } },
+    };
+    const updated = await Query.findOneAndUpdate(
+      { _id: req.params.id, company: req.company._id },
+      updateObject,
       { new: true }
     );
     //  Emit live update
@@ -83,35 +91,75 @@ const updateQuery = async (req, res) => {
     res.status(500).json({ error });
   }
 };
+const deleteQuery = async (req, res) => {
+  try {
+    const del = await Query.findOneAndDelete({
+      _id: req.params.id,
+      company: req.company._id,
+    });
+    res.status(200).json(del);
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+};
 
 const getAnalytics = async (req, res) => {
-  // add cosole logs to debug after every step
   try {
-    const total = await Query.countDocuments();
+    // Total tickets
+    const total = await Query.countDocuments({
+      company: req.company._id,
+    });
 
-    const critical = await Query.countDocuments({ priority: "critical" });
-    const high = await Query.countDocuments({ priority: "high" });
-    const medium = await Query.countDocuments({ priority: "medium" });
-    const low = await Query.countDocuments({ priority: "low" });
+    // Priority counts
+    const critical = await Query.countDocuments({
+      priority: "critical",
+      company: req.company._id,
+    });
 
-    const open = await Query.countDocuments({ status: "open" });
-    const closed = await Query.countDocuments({ status: "closed" });
+    const high = await Query.countDocuments({
+      priority: "high",
+      company: req.company._id,
+    });
 
-    // SLA: tickets open > 24 hours
+    const medium = await Query.countDocuments({
+      priority: "medium",
+      company: req.company._id,
+    });
+
+    const low = await Query.countDocuments({
+      priority: "low",
+      company: req.company._id,
+    });
+
+    // Status counts
+    const open = await Query.countDocuments({
+      status: "open",
+      company: req.company._id,
+    });
+
+    const closed = await Query.countDocuments({
+      status: "closed",
+      company: req.company._id,
+    });
+
+    // SLA breach: open > 24 hours
     const slaBreach = await Query.countDocuments({
       status: "open",
+      company: req.company._id,
       createdAt: { $lt: new Date(Date.now() - 24 * 60 * 60 * 1000) },
     });
 
     // Average sentiment
     const sentimentAgg = await Query.aggregate([
+      { $match: { company: req.company._id } },
       { $group: { _id: null, avgSentiment: { $avg: "$sentiment" } } },
     ]);
 
     const avgSentiment = sentimentAgg.length ? sentimentAgg[0].avgSentiment : 0;
 
-    // Most common tags
+    // Top tags
     const topTags = await Query.aggregate([
+      { $match: { company: req.company._id } },
       { $unwind: "$tags" },
       { $group: { _id: "$tags", count: { $sum: 1 } } },
       { $sort: { count: -1 } },
@@ -127,11 +175,10 @@ const getAnalytics = async (req, res) => {
       topTags,
     });
   } catch (error) {
-    console.log(error);
-
     res.status(500).json({ status: false, error: error.message });
   }
 };
+
 
 const suggestReply = async (req, res) => {
   try {
@@ -180,6 +227,44 @@ const suggestReply = async (req, res) => {
   }
 };
 
+const getChats = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const q = await Query.findById(id);
+    if (!q) return res.status(404).json({ error: "Query not found" });
+    res.status(200).json(q.chat);
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const addChatMessage = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { sender, message } = req.body;
+    // log("Adding chat message:", { id, sender, message });
+
+    const q = await Query.findById(id);
+    if (!q) return res.status(404).json({ error: "Query not found" });
+
+    const chatEntry = { sender, message };
+
+    q.chat.push(chatEntry);
+    await q.save();
+
+    // 🔥 Emit real-time update
+    const io = req.app.get("io");
+    io.to(id).emit("chat:new", chatEntry);
+
+    res.status(200).json(chatEntry);
+  } catch (error) {
+    console.log(error.message);
+
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   createQuery,
   getAllQueries,
@@ -187,4 +272,6 @@ module.exports = {
   updateQuery,
   getAnalytics,
   suggestReply,
+  getChats,
+  addChatMessage,
 };
