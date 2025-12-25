@@ -17,8 +17,21 @@ export const setCompanySlug = (slug) => {
 };
 
 API.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
   const slug = localStorage.getItem("company_slug");
-  if (slug) config.headers["x-company-slug"] = slug;
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  } else {
+    delete config.headers.Authorization;
+  }
+
+  if (slug) {
+    config.headers["x-company-slug"] = slug;
+  } else {
+    delete config.headers["x-company-slug"];
+  }
+
   return config;
 });
 

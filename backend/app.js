@@ -9,6 +9,7 @@ const analyticsRoutes = require("./routes/sentiment");
 const authRoutes = require("./routes/authRoutes");
 const app = express();
 const PORT = process.env.PORT || 8000;
+const jwt = require("jsonwebtoken");
 dotenv.config();
 app.use(cors());
 
@@ -23,6 +24,19 @@ const io = new Server(server, {
   },
 });
 
+// socket Token verfication MIDDLEWARE
+io.use((socket, next) => {
+  const token = socket.handshake.auth?.token;
+  if (!token) return next(new Error("Unauthorized socket"));
+
+  try {
+    jwt.verify(token, process.env.JWT_SECRET);
+    next();
+  } catch (e) {
+    next(new Error("Invalid socket token"));
+  }
+});
+
 app.set("io", io);
 
 //Chat Setup
@@ -34,35 +48,25 @@ app.use(bodyParser.json());
 app.get("/", (req, res) => {
   res.send("Complaint Management API!");
 });
-app.use('/api/v1/query/auth',authRoutes);
+app.use("/api/v1/query/auth", authRoutes);
 app.use("/api/v1/query", queryRoutes);
-app.use('/api/v1/query', extraRoutes);
-app.use('/api/v1/query/sentiment', analyticsRoutes);
+app.use("/api/v1/query", extraRoutes);
+app.use("/api/v1/query/sentiment", analyticsRoutes);
 
 // Start server
 connectDB()
-  .then(async() => {
+  .then(async () => {
     console.log("Connected to the database successfully.");
 
     io.on("connection", (socket) => {
       console.log("Client io connected:", socket.id);
-    })
+    });
 
     server.listen(PORT, () =>
       console.log(
         `Server running with socket.io running on http://localhost:${PORT}`
       )
     );
-
-    //  const result = await Query.updateMany(
-    //   {}, 
-    //   { $set: { chat: [] } } 
-    // );
-    // console.log(result);
-    
-    // app.listen(PORT, () => {
-    //   console.log(`Server is running on http://localhost:${PORT}`);
-    // });
   })
   .catch((error) => {
     console.error("Failed to connect to the database:", error.message);
