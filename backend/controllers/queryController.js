@@ -70,22 +70,23 @@ const getById = async (req, res) => {
 
 const updateQuery = async (req, res) => {
   try {
-    const { status, assignedTo } = req.body;
+    const { status, assignedTo,userName } = req.body;
     const updateObject = {
       ...(status && { status }),
       ...(assignedTo && { assignedTo }),
-      $push: { history: { action: `Updated`, by: "system" } },
+      $push: { history: { action: `Updated`, by: userName } },
     };
     const updated = await Query.findOneAndUpdate(
       { _id: req.params.id, company: req.company._id },
       updateObject,
       { new: true }
     );
+    // console.log("Update success: " , updateObject);
+    
     //  Emit live update
     const io = req.app.get("io");
-    io.emit("query-updated", { type: "updated", data: updated });
+    io.emit("query-updated", { type: "updated", data: updated, by:userName });
     io.emit("analytics-updated");
-
     res.status(200).json(updated);
   } catch (error) {
     res.status(500).json({ error });
@@ -271,6 +272,7 @@ module.exports = {
   getById,
   updateQuery,
   getAnalytics,
+  deleteQuery,
   suggestReply,
   getChats,
   addChatMessage,

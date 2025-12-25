@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-
 import InboxList from "../components/InboxList";
 import QueryDetails from "../components/QueryDetails";
 import AnalyticsPanel from "../components/AnalyticsPanel";
 import AssignModal from "../components/AssignModal";
-import API from "../api/api";
 import socket from "../socket/socket";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import API from "../api/query";
+import { BarLoader } from "react-spinners";
 
 export default function Dashboard() {
   
@@ -16,6 +16,9 @@ export default function Dashboard() {
   const [analytics, setAnalytics] = useState(null);
   const [showAssign, setShowAssign] = useState(false);
   const { isAgent, isAdmin } = useAuth();
+  const [loadingQuery, setLoadingQuery] = useState(true);
+
+
 
   const loadAll = async () => {
     try {
@@ -23,6 +26,8 @@ export default function Dashboard() {
       setList(res.data);
       const a = await API.get("/analytics");
       setAnalytics(a.data);
+      
+      setLoadingQuery(false)
     } catch (error) {
       console.error("Error loading data:", error);
     }
@@ -39,6 +44,8 @@ export default function Dashboard() {
       loadAll(); // reload analytics only
     });
 
+
+
     if (!isAdmin && !isAgent) {
       console.log("Access Denied");
       return <Navigate to="/login" replace />;
@@ -51,8 +58,12 @@ export default function Dashboard() {
   }, []);
 
   return (
+    <>
+     {loadingQuery &&  <BarLoader width={"100%"} height={"5px"} margin={"0px"} />}
     <div className="p-6 w-full">
+
       <AnalyticsPanel data={analytics} />
+
 
       <AssignModal
         visible={showAssign}
@@ -60,5 +71,6 @@ export default function Dashboard() {
         onAssign={(name) => console.log("assigned to", name)}
       />
     </div>
+    </>
   );
 }

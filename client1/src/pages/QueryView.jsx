@@ -1,19 +1,34 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
-import API from "../api/api";
+
 import socket from "../socket/socket";
 import ChatBox from "../components/ChatBox";
+import API from "../api/query";
+import TicketDeleteModal from "../components/Ticket/TicketDeleteModal";
 
 export default function QueryView() {
   const { id } = useParams();
   const [query, setQuery] = useState(null);
   const [newMsg, setNewMsg] = useState("");
   const chatEndRef = useRef(null);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false)
 
+
+  ///dEelete ticket functionality
   const loadQuery = async () => {
-    const res = await API.get(`/${id}`);
-    setQuery(res.data);
-  };
+    try {
+      const res = await API.get(`/${id}`);
+      setQuery(res.data);
+    } catch (error) {
+        alert("Error Loading MEssages");
+        console.log(error);
+        
+    };
+      
+    }
+  const handleDelete =  () => {
+    setOpenDeleteModal(true);
+  }
 
   useEffect(() => {
     loadQuery();
@@ -45,9 +60,14 @@ export default function QueryView() {
     setNewMsg("");
   };
 
+
   if (!query) return <p>Loading query…</p>;
 
+
   return (
+      <>
+      
+      {openDeleteModal && <TicketDeleteModal open={openDeleteModal} setOpen={setOpenDeleteModal} />}
     <div className="p-6 max-w-4xl mx-auto mt-10 bg-white shadow-xl rounded-xl h-[80vh] flex flex-col">
       <h1 className="text-2xl font-bold mb-4">Query Chat 🗨️</h1>
 
@@ -94,14 +114,17 @@ export default function QueryView() {
           placeholder="Type message…"
           value={newMsg}
           onChange={(e) => setNewMsg(e.target.value)}
-        />
+          />
         <button
           onClick={sendMessage}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg"
-        >
+          >
           Send ➤
         </button>
       </div>
+
+   <div><button onClick={()=>handleDelete()} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Delete Ticket</button></div>
     </div>
+          </>
   );
 }

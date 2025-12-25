@@ -1,3 +1,4 @@
+const { log } = require('console');
 const Company = require('../models/Company');
 module.exports = async (req,res,next)=>{
   const slug = req.headers['x-company-slug'] || req.query.company;
@@ -5,5 +6,6 @@ module.exports = async (req,res,next)=>{
   const company = await Company.findOne({ slug });
   if(!company) return res.status(404).json({ message: 'Company not found' });
   req.company = company;
+  // console.log("Tenant Check Passed");
   next();
 };

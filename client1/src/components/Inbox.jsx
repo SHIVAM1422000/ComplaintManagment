@@ -1,51 +1,46 @@
 // components/Inbox.js
-
+import { BarLoader } from "react-spinners";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import TicketCard from "../components/TicketCard";
+import TicketCard from "./Ticket/TicketCard";
 import SearchBar from "../components/SearchBar";
 import SortDropdown from "../components/SortDropdown";
-import API from "../api/api";
+import API from "../api/query";
+import { useQuery } from "../context/QueryContext";
 
 function Inbox() {
-  const [tickets, setTickets] = useState([]);
-  const [visibleTickets, setVisibleTickets] = useState([]);
+  // const [tickets, setTickets] = useState([]);
+  const {
+    tickets,
+    loadingTickets,
+    visibleTickets,
+    setVisibleTickets,
+  } = useQuery();
+
   const [search, setSearch] = useState("");
 
-
   useEffect(() => {
-    API.get("/")
-      .then((res) => {
-        setTickets(res.data);
-        setVisibleTickets(res.data);
-        console.log("Fetched Tickets:", res.data);
-        
-      })
-      .catch(console.error);
-
-
-  }, []);
-
-  useEffect(() => {
-
-    if(tickets.length === 0) return;
+    if (tickets.length === 0) return;
 
     const filtered = tickets.filter(
-      t =>
+      (t) =>
         t.message.toLowerCase().includes(search.toLowerCase()) ||
         t._id.toLowerCase().includes(search.toLowerCase()) ||
-        t.channel.toLowerCase().includes(search.toLowerCase()) ||  t.status.toLowerCase().includes(search.toLowerCase()) 
+        t.channel.toLowerCase().includes(search.toLowerCase()) ||
+        t.status.toLowerCase().includes(search.toLowerCase())
     );
     // console.log("Filtered Tickets:", filtered);
     setVisibleTickets(filtered);
   }, [search, tickets]);
 
-  const handleSort = type => {
+  const handleSort = (type) => {
     let sorted = [...visibleTickets];
     if (type === "priority") {
       // Priority custom order
       const order = { critical: 1, high: 2, medium: 3, low: 4 };
-      sorted.sort((a, b) => (order[a.priority] || 99) - (order[b.priority] || 99));
+      sorted.sort(
+        (a, b) => (order[a.priority] || 99) - (order[b.priority] || 99)
+      );
     }
     if (type === "origin") {
       sorted.sort((a, b) => a.channel.localeCompare(b.channel));
@@ -59,8 +54,12 @@ function Inbox() {
     setVisibleTickets(sorted);
   };
 
-  if(!tickets.length) {
-    return <div className="p-6">Loading tickets...</div>;
+  if (loadingTickets) {
+    return (
+      <> 
+        <BarLoader width={"100%"} height={"5px"} margin={"0px"} />
+      </>
+    );
   }
 
   return (
@@ -71,12 +70,16 @@ function Inbox() {
         <SortDropdown onSort={handleSort} />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {visibleTickets.map(ticket => (
-          <TicketCard key={ticket._id} ticket={ticket} />
+        {visibleTickets.map((ticket) => (
+          <TicketCard
+            key={ticket._id}
+            ticket={ticket}
+            visibleTickets={visibleTickets}
+            setVisibleTickets={setVisibleTickets}
+          />
         ))}
       </div>
     </div>
   );
 }
 export default Inbox;
-

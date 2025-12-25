@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import API, { setAuthToken, setCompanySlug } from "../API/API";
-
+import API, { setAuthToken, setCompanySlug } from "../api/query";
+import { Navigate } from "react-router-dom";
 
 export const AuthContext = createContext();
 
@@ -11,7 +11,6 @@ export const AuthProvider = ({ children }) => {
   const isAgent = user?.role === "agent";
   const isUser = user?.role === "user";
 
-  // load token from localStorage
   useEffect(() => {
     const token = localStorage.getItem("token");
     const slug = localStorage.getItem("company_slug");
@@ -26,6 +25,15 @@ export const AuthProvider = ({ children }) => {
 
     API.get("/auth/me")
       .then((res) => setUser(res.data.user))
+      .catch((err) => {
+        console.log(err);
+        alert("Unauthorized Please Login Again");
+        setAuthToken(null);
+        setCompanySlug(null);
+        localStorage.removeItem("token");
+        localStorage.removeItem("company_slug");
+        <Navigate to="/login" replace />
+      })
       .finally(() => setLoading(false));
   }, []);
 

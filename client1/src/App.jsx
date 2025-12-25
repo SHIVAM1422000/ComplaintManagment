@@ -11,7 +11,7 @@ import { Navigate } from "react-router-dom";
 import RouteGuard from "./components/RouteGaurd";
 import Register from "./pages/Auth/Register";
 import { useAuth } from "./context/AuthContext";
-
+// WE have to check why the headers are auto populated in the api and tampering token doesn't effects it
 const App = () => {
   return (
     <BrowserRouter>

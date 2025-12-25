@@ -12,7 +12,7 @@ export default function RouteGuard({ roles, children }) {
   if (loading) return <p>Loading...</p>;
 
   if (!user || !slug || !roles.includes(user?.role)) {
-    alert("No User Found, Please Login");
+    alert("No User Found, Please Login"); localStorage.clear();
     return <Navigate to="/login" replace />;
   }
 

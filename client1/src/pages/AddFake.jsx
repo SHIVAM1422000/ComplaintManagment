@@ -1,28 +1,30 @@
 import { useState } from "react";
-import API from "../api/api";
 import VoiceInput from "../components/VoiceInput";
 import "../style/style1.css";
-
+import API from "../api/query";
 
 export default function AddFake() {
   const [msg, setMsg] = useState("");
   const loc = ["instagram", "facebook", "twitter", "email", "web", "whatsapp"];
 
   async function submit() {
-    if(!msg) {
+    if (!msg) {
       alert("Please enter a message");
       return;
     }
 
-
     const randomIndex = Math.floor(Math.random() * loc.length);
-    const res = await API.post("/", {
-      message: msg,
-      channel: loc[randomIndex],
-    });
-
-    // console.log("Fake complaint added 🎉", res)
-    setMsg("");
+    try {
+      await API.post("/", {
+        message: msg,
+        channel: loc[randomIndex],
+      });
+      setMsg("");
+      console.log("Addede complaint");
+      
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   return (
@@ -36,17 +38,15 @@ export default function AddFake() {
         onChange={(e) => setMsg(e.target.value)}
       />
       <div className="flex items-center space-x-4">
-
-      <button
-        className="mt-3 px-4 py-2 bg-indigo-600 text-white rounded"
-        onClick={submit}
+        <button
+          className="mt-3 px-4 py-2 bg-indigo-600 text-white rounded"
+          onClick={submit}
         >
-        Submit 🎯
-      </button>
+          Submit 🎯
+        </button>
 
-      <VoiceInput onResult={setMsg} />
-
-        </div>
+        <VoiceInput onResult={setMsg} />
+      </div>
     </div>
   );
 }

@@ -14,6 +14,7 @@ exports.protect = async (req, res, next) => {
     if (!token) {
       return res.status(401).json({ message: "Not authorized, no token" });
     }
+    // console.log(token);
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.id).populate("company");
@@ -35,6 +36,8 @@ exports.protect = async (req, res, next) => {
       role: user.role,
       company: user.company,
     };
+
+    // console.log("Auth cheeck passed",user.email);
 
     next();
   } catch (err) {

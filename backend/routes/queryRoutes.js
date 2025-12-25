@@ -17,6 +17,7 @@ const {
   suggestReply,
   addChatMessage,
   getChats,
+  deleteQuery,
 } = require("../controllers/queryController");
 
 // Create a new query
@@ -27,18 +28,18 @@ router
   .route("/")
   .get(tenant, protect, roles(["admin", "agent"]), getAllQueries);
 // Get, Update query by ID
-router.route("/analytics").get(getAnalytics);
+router.route("/analytics").get(tenant, protect, getAnalytics);
 router
   .route("/:id")
-  .get(tenant, protect, roles(["user", "agent", "admin"]), getById);
-router
-  .route("/:id")
-  .patch(tenant, protect, roles(["agent", "admin"]), updateQuery);
+  .get(tenant, protect, roles(["user", "agent", "admin"]), getById)
+  .patch(tenant, protect, roles(["agent", "admin"]), updateQuery)
+  .delete(tenant, protect, roles(["admin"]), deleteQuery);
+
 router.route("/:id/suggest-reply").get(suggestReply);
 router
   .route("/:id/chat")
   .post(tenant, protect, roles(["user", "agent", "admin"]), addChatMessage)
-  .get(tenant, protect, roles(["user", "agent", "admin"]), getChats);
+  .get(tenant, protect, roles(["agent", "admin"]), getChats);
 
 // router
 //   .route("/:id")

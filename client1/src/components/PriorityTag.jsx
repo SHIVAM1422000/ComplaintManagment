@@ -7,7 +7,7 @@ export default function PriorityTag({ level }) {
   }[level] || "bg-gray-300 text-black";
   return (
     <span className={`px-3 py-1 rounded-xl font-bold shadow-sm ${color}`}>
-      {level?.toUpperCase() || "N/A"}
+      {"PRIORITY: " + level?.toUpperCase() || "N/A"}
     </span>
   );
 }
