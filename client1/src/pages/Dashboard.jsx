@@ -9,8 +9,10 @@ import { useAuth } from "../context/AuthContext";
 import API from "../api/query";
 import { BarLoader } from "react-spinners";
 
+
+
+
 export default function Dashboard() {
-  
   const [list, setList] = useState([]);
   const [selected, setSelected] = useState(null);
   const [analytics, setAnalytics] = useState(null);
@@ -18,16 +20,13 @@ export default function Dashboard() {
   const { isAgent, isAdmin } = useAuth();
   const [loadingQuery, setLoadingQuery] = useState(true);
 
-
-
   const loadAll = async () => {
     try {
       const res = await API.get("/");
       setList(res.data);
       const a = await API.get("/analytics");
       setAnalytics(a.data);
-      
-      setLoadingQuery(false)
+      setLoadingQuery(false);
     } catch (error) {
       console.error("Error loading data:", error);
     }
@@ -36,15 +35,13 @@ export default function Dashboard() {
   useEffect(() => {
     loadAll();
 
-    socket.on("query-updated", () => {
-      loadAll(); // reload list + analytics
-    });
+    // socket.on("query-updated", () => {
+    //   loadAll(); // reload list + analytics
+    // });
 
-    socket.on("analytics-updated", () => {
-      loadAll(); // reload analytics only
-    });
-
-
+    // socket.on("analytics-updated", () => {
+    //   loadAll(); // reload analytics only
+    // });
 
     if (!isAdmin && !isAgent) {
       console.log("Access Denied");
@@ -52,25 +49,27 @@ export default function Dashboard() {
     }
 
     return () => {
-      socket.off("query-updated");
-      socket.off("analytics-updated");
+      // socket.off("query-updated");
+      // socket.off("analytics-updated");
     };
   }, []);
 
   return (
     <>
-     {loadingQuery &&  <BarLoader width={"100%"} height={"5px"} margin={"0px"} />}
-    <div className="p-6 w-full">
+      {loadingQuery && (
+        <BarLoader width={"100%"} height={"5px"} margin={"0px"} />
+      )}
+      <div className="p-6 w-full">
+        <AnalyticsPanel data={analytics} />
 
-      <AnalyticsPanel data={analytics} />
-
-
-      <AssignModal
-        visible={showAssign}
-        onClose={() => setShowAssign(false)}
-        onAssign={(name) => console.log("assigned to", name)}
-      />
-    </div>
+        <AssignModal
+          visible={showAssign}
+          onClose={() => setShowAssign(false)}
+          onAssign={(name) => console.log("assigned to", name)}
+        />
+      </div>
     </>
   );
 }
+
+

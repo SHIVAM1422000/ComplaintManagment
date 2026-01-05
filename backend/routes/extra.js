@@ -28,8 +28,8 @@ router.post("/:id/chat", async (req, res) => {
    const { sender, text } = req.body;
    const cm = await ChatMessage.create({ queryId: id, sender, text });
    // emit socket event if io present
-   const io = req.app.get("io");
-   if (io) io.to(`chat_${id}`).emit("chat:new", cm);
+  //  const io = req.app.get("io");
+  //  if (io) io.to(`chat_${id}`).emit("chat:new", cm);
    res.status(200).json({ ok: true, message: cm });
  } catch (err) {
    console.error(err);

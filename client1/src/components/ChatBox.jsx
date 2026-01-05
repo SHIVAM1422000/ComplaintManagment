@@ -1,36 +1,46 @@
-
-import React, { useEffect, useState, useRef } from "react";
-import axios from "axios";
+import { useEffect, useState, useRef } from "react";
 import URL from "../utility/helper";
-import socket from "../socket/socket";
+import { connectSocket } from "../socket/socket";
+import API from "../api/query";
 
 export default function ChatBox({ queryId, currentUser }) {
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
   const ref = useRef();
+  const socketRef = useRef();
+
 
   useEffect(() => {
-    if (!queryId) return;
-
-    //  etch history
-    axios.get(`${URL}/${queryId}/chat`).then((res) => {
+    API.get(`${URL}/${queryId}/chat`).then((res) => {
       setMessages(res.data);
     });
+  }, [queryId]);
 
-    // Join room
-    socket.emit("join:chat", queryId);
-
-    // Listen for incoming messages
-    const handler = (msg) => {
-      setMessages((prev) => [...prev, msg]);
-    };
+  //for SOCKET SETUP
+  useEffect(() => {
     
-    socket.on("chat:new", handler);
+    if (!queryId) return;
+    
+    console.log("Changed to " , queryId);
+    const socket = connectSocket();
+    socketRef.current = socket;
 
+  
+    const onNewMessage = (msg) => {
+      console.log("📨 realtime msg received:", msg);
+      if (!socketRef.current) return;
+      setMessages((prev) => {
+        return [...prev, {...msg, createdAt: new Date().toISOString()}];
+      });
+    };
+
+    socket.emit("join:query", queryId);
+    socket.on("chat:new", onNewMessage);
 
     return () => {
-      socket.off("chat:new", handler);
-      socket.emit("leave:chat", queryId);
+      socket.emit("leave:query", queryId);
+      // socket.emit("join:query", queryId);
+      socket.off("chat:new", onNewMessage);
     };
   }, [queryId]);
 
@@ -38,22 +48,27 @@ export default function ChatBox({ queryId, currentUser }) {
     ref.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const send = async () => {
-    if (!text.trim()) return;
+  const sendMessageHandler = async (e) => {
+    if (!socketRef.current) return;
+    console.log(socketRef.current);
 
-    socket.emit("chat:send", {
-      queryId,
+    e.preventDefault();
+    if (!text.trim()) {
+      return;
+    }
+
+    const chatEntry = {
       sender: currentUser,
-      text,
-    });
+      message: text,
+    };
 
-    // Optional: Also persist on backend
-    await axios.post(`${URL}/${queryId}/chat`, {
-      sender: currentUser,
-      text,
-    });
-
-    setText("");
+    try {
+      await API.post(`${URL}/${queryId}/chat`, chatEntry);
+      socketRef.current.emit("chat:new", chatEntry);
+      setText("");
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -69,22 +84,31 @@ export default function ChatBox({ queryId, currentUser }) {
             <div className="text-xs text-gray-500 mb-1">
               {m.sender} • {new Date(m.createdAt).toLocaleString()}
             </div>
-            {m.text}
+            {m.message}
           </div>
         ))}
         <div ref={ref} />
       </div>
 
-      <div className="p-2 flex gap-2">
+      <form
+        className="p-2 flex gap-2"
+        onSubmit={(e) => {
+          sendMessageHandler(e);
+        }}
+      >
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}
           className="flex-1 p-2 border rounded"
         />
-        <button onClick={send} className="bg-blue-600 text-white px-4 rounded">
+        <button
+          disabled={!text.trim()}
+          type="submit"
+          className="bg-blue-600 text-white px-4 rounded"
+        >
           Send
         </button>
-      </div>
+      </form>
     </div>
   );
 }

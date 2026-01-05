@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import API, { setAuthToken, setCompanySlug } from "../api/query";
 import { Navigate } from "react-router-dom";
+import API from "../api/query";
+import { connectSocket, disconnectSocket } from "../socket/socket";
 
 export const AuthContext = createContext();
 
@@ -10,16 +11,16 @@ export const AuthProvider = ({ children }) => {
   const isAdmin = user?.role === "admin";
   const isAgent = user?.role === "agent";
   const isUser = user?.role === "user";
+  const [CurrToken, setCurrToken] = useState(null);
+  const [CurrCompanySlug, setCurrCompanySlug] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const slug = localStorage.getItem("company_slug");
+    const token = CurrToken || localStorage.getItem("token");
+    const slug = CurrCompanySlug || localStorage.getItem("company_slug");
 
-    if (token) setAuthToken(token);
-    if (slug) setCompanySlug(slug);
-
-    if (!token) {
+    if (!token || !slug) {
       setLoading(false);
+      alert("Unauthorized Login");
       return;
     }
 
@@ -28,11 +29,7 @@ export const AuthProvider = ({ children }) => {
       .catch((err) => {
         console.log(err);
         alert("Unauthorized Please Login Again");
-        setAuthToken(null);
-        setCompanySlug(null);
-        localStorage.removeItem("token");
-        localStorage.removeItem("company_slug");
-        <Navigate to="/login" replace />
+        <Navigate to="/login" replace />;
       })
       .finally(() => setLoading(false));
   }, []);
@@ -45,11 +42,16 @@ export const AuthProvider = ({ children }) => {
     };
     try {
       const res = await API.post("/auth/login", data);
+      if (res) {
+        setCurrToken(res.token);
+        setCurrCompanySlug(res?.user?.company.trim().toLowerCase());
+      }
+
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("company_slug", res.data.user.company);
-      setAuthToken(res.data.token);
-      setCompanySlug(res.data.user.company);
+      connectSocket();
       setUser(res.data.user);
+      connectSocket();
       return res.data;
     } catch (error) {
       console.log(error.message);
@@ -67,8 +69,6 @@ export const AuthProvider = ({ children }) => {
       const res = await API.post("/auth/register", data);
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("company_slug", res.data.user.company);
-      setAuthToken(res.data.token);
-      setCompanySlug(res.data.user.company);
       setUser(res.data.user);
     } catch (error) {
       console.log(error.message);
@@ -78,8 +78,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("company_slug");
-    setAuthToken(null);
-    setCompanySlug(null);
+    disconnectSocket();
     setUser(null);
   };
 
@@ -94,6 +93,10 @@ export const AuthProvider = ({ children }) => {
         isAdmin,
         isAgent,
         isUser,
+        CurrToken,
+        CurrCompanySlug,
+        setCurrToken,
+        setCurrCompanySlug,
       }}
     >
       {children}

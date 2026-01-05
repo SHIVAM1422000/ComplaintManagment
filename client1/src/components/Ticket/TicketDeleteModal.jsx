@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { use, useState } from "react";
 import {
   Dialog,
   DialogBackdrop,
@@ -6,8 +6,13 @@ import {
   DialogTitle,
 } from "@headlessui/react";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import { useNavigate, useParams } from "react-router-dom";
+import API from "../../api/query";
+import { useAuth } from "../../context/AuthContext";
 
 export default function TicketDeleteModal({ open = true, setOpen }) {
+  const nav=useNavigate();
+  const {id} = useParams();
   return (
     <div>
       <button
@@ -56,10 +61,15 @@ export default function TicketDeleteModal({ open = true, setOpen }) {
               <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
                 <button
                   type="button"
-                  onClick={() => setOpen(false)}
+                  onClick={() => {
+                    setOpen(false);
+                    API.delete(`${id}`).then(()=>{
+                      nav("/")
+                    })
+                  }}
                   className="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-red-500 sm:ml-3 sm:w-auto"
                 >
-                  Deactivate
+                  DELETE QUERY
                 </button>
                 <button
                   type="button"

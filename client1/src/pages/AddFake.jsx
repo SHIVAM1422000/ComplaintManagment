@@ -11,7 +11,7 @@ export default function AddFake() {
     if (!msg) {
       alert("Please enter a message");
       return;
-    }
+    } 
 
     const randomIndex = Math.floor(Math.random() * loc.length);
     try {

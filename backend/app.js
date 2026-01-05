@@ -16,17 +16,20 @@ app.use(cors());
 // Socket.io setup
 const { Server } = require("socket.io");
 const http = require("http");
-const Query = require("./models/Query");
+const { setSocket } = require("./socket/socket");
+const { log } = require("console");
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: "*",
   },
 });
+setSocket(io)
 
 // socket Token verfication MIDDLEWARE
 io.use((socket, next) => {
   const token = socket.handshake.auth?.token;
+  // console.log("Token Received ", token);
   if (!token) return next(new Error("Unauthorized socket"));
 
   try {
@@ -37,7 +40,7 @@ io.use((socket, next) => {
   }
 });
 
-app.set("io", io);
+
 
 //Chat Setup
 
@@ -57,10 +60,27 @@ app.use("/api/v1/query/sentiment", analyticsRoutes);
 connectDB()
   .then(async () => {
     console.log("Connected to the database successfully.");
-
     io.on("connection", (socket) => {
-      console.log("Client io connected:", socket.id);
+      console.log("🟢 Client io connected (app.js):", socket.id);
+
+      socket.on("join:query", (queryId) => {
+        console.log("📥 join room:", `query:${queryId}`);
+        socket.join(`query:${queryId}`);
+      });
+
+      socket.on("leave:query", (queryId) => {
+        console.log("Leave Room",`query:${queryId}` );
+        socket.leave(`query:${queryId}`);
+      });
+
+      socket.on("disconnect", () => {
+        console.log("🔴 Socket disconnected:", socket.id);
+      });
     });
+
+    setInterval(() => {
+      io.emit("server:test", { time: new Date().toISOString() });
+    }, 3000);
 
     server.listen(PORT, () =>
       console.log(
@@ -69,5 +89,5 @@ connectDB()
     );
   })
   .catch((error) => {
-    console.error("Failed to connect to the database:", error.message);
+    console.error("Error in Successful Connection:", error.message);
   });

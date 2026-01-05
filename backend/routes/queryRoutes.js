@@ -42,8 +42,6 @@ router
   .get(tenant, protect, roles(["agent", "admin"]), getChats);
 
 // router
-//   .route("/:id")
-//   .delete(protect, roles(["admin"]), deleteQuery);
 
 module.exports = router;
 

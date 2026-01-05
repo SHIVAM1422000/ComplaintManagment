@@ -1,0 +1,21 @@
+/* ----- SaaS Table Enhancements ----- */
+th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.resize-handle {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
+  background: transparent;
+}
+
+.resize-handle:hover {
+  background: rgba(99, 102, 241, 0.4); /* indigo glow */
+}
+

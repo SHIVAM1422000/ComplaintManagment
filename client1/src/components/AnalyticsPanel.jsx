@@ -58,9 +58,7 @@ export default function AnalyticsPanel({ data }) {
   ];
 
   return (
-    
     <div className="grid grid-cols-3 gap-6 w-full h-full">
-
       {/* Summary Cards */}
       <div className="col-span-3 grid grid-cols-4 gap-4">
         <div className="p-4 rounded-xl shadow bg-gradient-to-r from-blue-500 to-blue-600 text-white">

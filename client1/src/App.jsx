@@ -1,4 +1,4 @@
-import React, { use } from "react";
+import React, { use, useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import Sidebar from "./components/Sidebar";
@@ -11,8 +11,13 @@ import { Navigate } from "react-router-dom";
 import RouteGuard from "./components/RouteGaurd";
 import Register from "./pages/Auth/Register";
 import { useAuth } from "./context/AuthContext";
+import { connectSocket } from "./socket/socket";
 // WE have to check why the headers are auto populated in the api and tampering token doesn't effects it
 const App = () => {
+
+
+
+
   return (
     <BrowserRouter>
       <div className="flex bg-gradient-to-br from-purple-50 to-blue-50 min-h-screen">

@@ -5,6 +5,7 @@ const { autoPriority } = require("../utils/autoPriority");
 const { findDuplicate } = require("../utils/duplicateDetection");
 const { extractiveSummary } = require("../utils/summarizer");
 const { get } = require("mongoose");
+const { getSocket } = require("../socket/socket");
 
 const createQuery = async (req, res) => {
   try {
@@ -70,7 +71,7 @@ const getById = async (req, res) => {
 
 const updateQuery = async (req, res) => {
   try {
-    const { status, assignedTo,userName } = req.body;
+    const { status, assignedTo, userName } = req.body;
     const updateObject = {
       ...(status && { status }),
       ...(assignedTo && { assignedTo }),
@@ -82,10 +83,10 @@ const updateQuery = async (req, res) => {
       { new: true }
     );
     // console.log("Update success: " , updateObject);
-    
+
     //  Emit live update
     const io = req.app.get("io");
-    io.emit("query-updated", { type: "updated", data: updated, by:userName });
+    io.emit("query-updated", { type: "updated", data: updated, by: userName });
     io.emit("analytics-updated");
     res.status(200).json(updated);
   } catch (error) {
@@ -180,7 +181,6 @@ const getAnalytics = async (req, res) => {
   }
 };
 
-
 const suggestReply = async (req, res) => {
   try {
     const { id } = req.params;
@@ -244,19 +244,18 @@ const addChatMessage = async (req, res) => {
   try {
     const { id } = req.params;
     const { sender, message } = req.body;
-    // log("Adding chat message:", { id, sender, message });
 
     const q = await Query.findById(id);
     if (!q) return res.status(404).json({ error: "Query not found" });
 
     const chatEntry = { sender, message };
-
     q.chat.push(chatEntry);
     await q.save();
 
     // 🔥 Emit real-time update
-    const io = req.app.get("io");
-    io.to(id).emit("chat:new", chatEntry);
+    const io = getSocket()
+    console.log("🔥 EMITTING chat:new to", `query:${id}`, chatEntry);
+    io.to(`query:${id}`).emit("chat:new", chatEntry);
 
     res.status(200).json(chatEntry);
   } catch (error) {

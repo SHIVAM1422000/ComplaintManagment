@@ -13,7 +13,7 @@ io.on("connection", (socket) => {
     socket.leave(queryId);
   });
 
-  socket.on("chat:send", ({ queryId, sender, text }) => {
+  socket.on("chat:new", ({ queryId, sender, text }) => {
     // Broadcast to same room
     io.to(queryId).emit("chat:new", { sender, text, createdAt: new Date() });
   });
