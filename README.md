@@ -1,4 +1,4 @@
-# 🚀 Complaint Management System 📋
+# 🚀 Query360: An AI Complaint Management System 📋
 
 Welcome to the **Complaint Management System**! 🎉 This is a comprehensive full-stack application designed to streamline customer complaint handling, featuring real-time chat, sentiment analysis, automatic prioritization, and powerful analytics. Built with modern technologies for efficiency and scalability. 💪
 
